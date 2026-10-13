@@ -1,0 +1,27 @@
+version: '3.8'
+
+# PENTING: Docker Compose HANYA membaca file .env secara default
+# Untuk membaca .env.local, gunakan: docker-compose --env-file .env.local up
+# Atau copy .env.local ke .env di server
+
+services:
+  frontend-kwhmeter:
+    # Build the image from the Dockerfile in the current directory
+    build:
+      context: .
+      args:
+        # BUILD_MODE dibaca dari environment variable
+        # Sumber: .env.local (via --env-file flag) atau .env
+        # Default: production jika tidak ada
+        BUILD_MODE: ${BUILD_MODE:-production}
+    # Name of the container
+    container_name: frontend-kwhmeter
+    # Restart the container always
+    restart: always
+    # Environment variables untuk runtime (PORT, dll)
+    env_file:
+      - .env
+    # Expose the port
+    ports:
+      - '${PORT}:${PORT}'
+

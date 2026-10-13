@@ -1,0 +1,541 @@
+@use '@coreui/coreui/scss/coreui' as * with (
+  $enable-deprecation-messages: false
+);
+@use '@coreui/chartjs/scss/coreui-chartjs';
+@use 'vendors/simplebar';
+
+body {
+  background-color: var(--cui-tertiary-bg);
+}
+
+.wrapper {
+  width: 100%;
+  padding-inline: var(--cui-sidebar-occupy-start, 0) var(--cui-sidebar-occupy-end, 0);
+  will-change: auto;
+  @include transition(padding 0.15s);
+}
+
+.header > .container-fluid,
+.sidebar-header {
+  min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+}
+
+.sidebar-brand-full {
+  margin-left: 3px;
+}
+
+.sidebar-header {
+  .nav-underline-border {
+    --cui-nav-underline-border-link-padding-x: 1rem;
+    --cui-nav-underline-border-gap: 0;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+  }
+}
+
+.sidebar-toggler {
+  margin-inline-start: auto;
+}
+
+.sidebar-narrow,
+.sidebar-narrow-unfoldable:not(:hover) {
+  .sidebar-toggler {
+    margin-inline-end: auto;
+  }
+}
+
+.header > .container-fluid + .container-fluid {
+  min-height: 3rem;
+}
+
+.footer {
+  min-height: calc(3rem + 1px); // stylelint-disable-line function-disallowed-list
+}
+
+@include color-mode(dark) {
+  body {
+    background-color: var(--cui-dark-bg-subtle);
+  }
+
+  .footer {
+    --cui-footer-bg: var(--cui-body-bg);
+  }
+}
+
+//Khusus CSS Custom
+.cust-add-product {
+  margin-bottom: 10px;
+}
+
+/* Pastikan semua cell punya tinggi minimal yang sama */
+.cust-product-row td {
+  vertical-align: middle;
+  padding: 0.5rem;
+  height: 60px; /* tinggi tetap */
+  min-height: 60px;
+}
+
+/* Atur react-select supaya height seragam */
+.cust-product-row .react-select__control {
+  min-height: 38px !important;
+  height: 38px !important;
+}
+
+.sidebar-thumbnail {
+  border: 0px solid rgba(255, 255, 255, 0.2); /* garis halus */
+  border-radius: 8px; /* sedikit melengkung */
+  padding: 4px; /* jarak dalam */
+  // background-color: rgba(255, 255, 255, 0.05); /* efek latar lembut */
+  // box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); /* bayangan lembut */
+  transition: all 0.3s ease;
+}
+
+.sidebar-thumbnail:hover {
+  transform: scale(1.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================
+   Layout Stabilizer (Anti-CLS)
+   ========================== */
+
+.wrapper {
+  transition: none !important;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: calc(100vh - 120px); // 70 header + 40 breadcrumb + 10 buffer
+  transition: none !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.container-lg {
+  transition: none !important;
+  min-height: 100%;
+  flex-grow: 1;
+}
+
+/* ==========================
+   END Layout Stabilizer (Anti-CLS)
+   ========================== */
+
+/* ==========================
+   Resize Manual Hanya untuk PLN Serial (tanpa icon di header)
+   ========================== */
+
+/* Semua cell normal dulu */
+.rdt_TableCell,
+.rdt_TableCol {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// /* Hanya body PLN Serial (kolom pertama) bisa di-drag */
+// .rdt_TableRow .rdt_TableCell:nth-child(1) {
+//   resize: horizontal;
+//   overflow: auto;
+//   min-width: 150px;
+//   max-width: 800px;
+//   cursor: col-resize;
+//   user-select: none;
+// }
+
+// /* Header PLN Serial — tidak bisa resize dan tidak ada cursor */
+// .rdt_TableHead .rdt_TableCol:nth-child(1) {
+//   resize: none;
+//   cursor: default;
+// }
+
+// /* Transisi agar halus */
+// .rdt_TableCol,
+// .rdt_TableCell {
+//   transition: width 0.2s ease;
+// }
+
+/* ==========================
+   END Resize Manual Hanya untuk PLN Serial (tanpa icon di header)
+   ========================== */
+
+/* ==========================
+   Photo Upload Preview Styles - ReceivingDetail.js
+   ========================== */
+
+/* Container untuk gambar preview dengan padding agar tidak mentok */
+.photo-preview-container {
+  height: 150px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 10px;
+}
+
+/* Styling gambar preview agar responsive dan centered */
+.photo-preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Tombol close untuk menghapus foto dari preview */
+.photo-preview-close-btn {
+  width: 22px;
+  height: 22px;
+  padding: 2px;
+  margin: 6px;
+  border: none;
+  border-radius: 4px;
+  background-color: rgba(220, 53, 69, 0.95);
+  color: white;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover effect untuk tombol close */
+.photo-preview-close-btn:hover:not(:disabled) {
+  background-color: rgba(220, 53, 69, 1);
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* State disabled untuk tombol close */
+.photo-preview-close-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Text untuk nama file pada preview - ukuran kecil dan truncate */
+.photo-preview-filename {
+  font-size: 0.75rem;
+}
+
+/* Text untuk ukuran file pada preview - ukuran lebih kecil */
+.photo-preview-filesize {
+  font-size: 0.7rem;
+}
+
+/* Card untuk existing photos yang sudah tersimpan di server */
+.existing-photo-card {
+  cursor: default;
+  transition: transform 0.2s;
+}
+
+/* Hover effect untuk existing photo card - sedikit naik saat hover */
+.existing-photo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Tombol delete pada existing photo menggunakan class yang sama dengan new photo preview */
+/* .photo-preview-close-btn sudah didefinisikan di atas untuk consistency */
+
+/* ==========================
+   END Photo Upload Preview Styles
+   ========================== */
+
+/* ==========================
+   Error Card Styles - ProdQcSerialAql.js & ProdQcSerialNoAql.js & RepairQc.js
+   ========================== */
+
+/* Error card dengan background merah */
+.error-card {
+  background-color: #dc3545;
+  border: none;
+}
+
+/* Error card header dengan background merah gelap */
+.error-card-header {
+  background-color: #bd2130;
+  color: white;
+  border: none;
+}
+
+/* Error card body dengan text putih dan layout center */
+.error-card-body {
+  color: white;
+}
+
+/* Container untuk serial number di error card */
+.error-serial-number {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+/* Error icon styling */
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Error title styling */
+.error-title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* Error message text styling */
+.error-message {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* ==========================
+   END Error Card Styles
+   ========================== */
+
+/* ==========================
+   Success Card Styles
+   ========================== */
+
+/* Success card dengan background hijau */
+.success-card {
+  background-color: #28a745;
+  border: none;
+}
+
+/* Success card header dengan background hijau gelap */
+.success-card-header {
+  background-color: #218838;
+  color: white;
+  border: none;
+}
+
+/* Success card body dengan text putih dan layout center */
+.success-card-body {
+  color: white;
+}
+
+/* Container untuk serial number di success card */
+.success-serial-number {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+/* Success icon styling */
+.success-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: white;
+  font-weight: bold;
+}
+
+/* Success title styling */
+.success-title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+/* Success message text styling */
+.success-message {
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+/* Success additional info styling */
+.success-additional-info {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* ==========================
+   END Success Card Styles
+   ========================== */
+
+/* ==========================
+   Not Found Card Styles - NotFoundCard.js
+   ========================== */
+
+/* Container utama untuk not found content */
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  min-height: 300px;
+}
+
+/* Wrapper untuk icon warning */
+.not-found-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #fff3cd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Icon warning */
+.not-found-icon {
+  width: 40px;
+  height: 40px;
+  color: #856404;
+}
+
+/* Title untuk not found */
+.not-found-title {
+  color: #495057;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* Message untuk not found */
+.not-found-message {
+  color: #6c757d;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  max-width: 400px;
+}
+
+/* Search value yang di-highlight */
+.not-found-search-value {
+  color: #495057;
+}
+
+/* Container untuk action buttons */
+.not-found-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ==========================
+   END Not Found Card Styles
+   ========================== */
+
+/* ==========================
+   Product Detail Styles - ProductDetail.js
+   ========================== */
+
+/* Label untuk detail info */
+.product-detail-label {
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Separator/pemisah titik dua */
+.product-detail-separator {
+  color: #6c757d;
+}
+
+/* Value untuk detail info */
+.product-detail-value {
+  color: #212529;
+  font-weight: 500;
+}
+
+/* Container gambar produk */
+.product-image-container {
+  text-align: center;
+}
+
+/* Gambar produk thumbnail */
+.product-image-thumbnail {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  max-height: 250px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  cursor: pointer;
+  background-color: #f8f9fa;
+  padding: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-image-thumbnail:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Placeholder ketika tidak ada gambar */
+.product-image-placeholder {
+  width: 200px;
+  height: 200px;
+  background-color: #f8f9fa;
+  border: 1px dashed #dee2e6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* Text hint di bawah gambar */
+.product-image-hint {
+  margin-top: 0.5rem;
+}
+
+/* Gambar di modal */
+.product-modal-image {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+/* ==========================
+   END Product Detail Styles
+   ========================== */
+
+/* ==========================
+   Common Utility Classes
+   ========================== */
+
+/* Loading container */
+.loading-container {
+  height: 300px;
+}
+
+/* Cursor utilities */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+/* Table column widths */
+.table-col-no {
+  width: 60px;
+}
+
+.table-col-action {
+  width: 100px;
+}
+
+/* Pagination select */
+.pagination-select {
+  width: 80px;
+}
+
+/* ==========================
+   END Common Utility Classes
+   ========================== */
