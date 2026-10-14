@@ -14,8 +14,22 @@ import {
   CTableHeaderCell,
   CTableBody,
   CTableDataCell,
+  CImage,
 } from '@coreui/react'
 import { apiProducts } from '../../api/axios'
+
+// Deteksi apakah sebuah field adalah gambar berdasarkan nama field atau nilai URL-nya
+const IMAGE_FIELD_KEYWORDS = ['image', 'img', 'photo', 'picture', 'foto', 'thumbnail', 'avatar', 'cover']
+const IMAGE_EXTENSIONS = /\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/i
+
+const isImageField = (key, value) => {
+  if (!value || typeof value !== 'string') return false
+  const keyLower = key.toLowerCase()
+  const hasImageKeyword = IMAGE_FIELD_KEYWORDS.some((kw) => keyLower.includes(kw))
+  const hasImageExtension = IMAGE_EXTENSIONS.test(value)
+  const isUrl = value.startsWith('http') || value.startsWith('/')
+  return (hasImageKeyword && isUrl) || hasImageExtension
+}
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([])
@@ -99,13 +113,38 @@ const ProductsPage = () => {
                         <CTableDataCell>{index + 1}</CTableDataCell>
                         {columns.map((col) => (
                           <CTableDataCell key={col}>
-                            {product[col] === null || product[col] === undefined
-                              ? <span className="text-medium-emphasis">—</span>
-                              : typeof product[col] === 'boolean'
-                              ? <CBadge color={product[col] ? 'success' : 'secondary'}>{product[col] ? 'Yes' : 'No'}</CBadge>
-                              : typeof product[col] === 'object'
-                              ? JSON.stringify(product[col])
-                              : String(product[col])}
+                            {product[col] === null || product[col] === undefined ? (
+                              <span className="text-medium-emphasis">—</span>
+                            ) : typeof product[col] === 'boolean' ? (
+                              <CBadge color={product[col] ? 'success' : 'secondary'}>
+                                {product[col] ? 'Yes' : 'No'}
+                              </CBadge>
+                            ) : typeof product[col] === 'object' ? (
+                              JSON.stringify(product[col])
+                            ) : isImageField(col, String(product[col])) ? (
+                              <CImage
+                                src={String(product[col])}
+                                alt={col}
+                                width={64}
+                                height={64}
+                                style={{
+                                  objectFit: 'cover',
+                                  borderRadius: '6px',
+                                  border: '1px solid #dee2e6',
+                                  cursor: 'pointer',
+                                }}
+                                onClick={() => window.open(String(product[col]), '_blank')}
+                                onError={(e) => {
+                                  e.target.style.display = 'none'
+                                  e.target.insertAdjacentHTML(
+                                    'afterend',
+                                    '<span class="text-medium-emphasis">No image</span>',
+                                  )
+                                }}
+                              />
+                            ) : (
+                              String(product[col])
+                            )}
                           </CTableDataCell>
                         ))}
                       </CTableRow>

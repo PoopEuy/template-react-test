@@ -8,14 +8,14 @@ const AppFooter = () => {
         {/* <a href="https://coreui.io" target="_blank" rel="noopener noreferrer">
           CoreUI
         </a> */}
-        <span className="ms-1">&copy; 2025 Sundaya IT Team.</span>
+        <span className="ms-1">&copy; 2025  IT Team.</span>
       </div>
-      <div className="ms-auto">
+      {/* <div className="ms-auto">
         <span className="me-1">Powered by</span>
         <a href="https://www.sundaya.com/" target="_blank" rel="noopener noreferrer">
           Sundaya
         </a>
-      </div>
+      </div> */}
     </CFooter>
   )
 }

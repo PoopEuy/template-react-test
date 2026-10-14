@@ -33,7 +33,7 @@ const AppSidebar = () => {
         <CSidebarBrand to="/">
           <CImage
             className="sidebar-brand-full sidebar-thumbnail"
-            src="/images/white.webp"
+            src="/images/logo-dashboard.webp"
             alt="Logo"
             width={192}
             height={42}
@@ -43,8 +43,8 @@ const AppSidebar = () => {
             style={{ display: 'block', width: '192px', height: '42px', objectFit: 'contain' }}
           />
           <CImage
-            className="sidebar-brand-narrow d-none"
-            src="/images/white_logo.webp"
+            className="sidebar-brand-narrow"
+            src="/images/logo-dashboard.webp"
             alt="Logo"
             width={40}
             height={40}
