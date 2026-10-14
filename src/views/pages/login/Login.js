@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
+  CAlert,
   CButton,
   CCard,
   CCardBody,
@@ -12,37 +13,26 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked } from '@coreui/icons'
-import { backendAuth } from '../../../api/axios'
+import { cilLockLocked, cilUser } from '@coreui/icons'
 import { useAuth } from '../../../context/AuthContext'
+import { apiAuth } from '../../../api/axios'
 
 const Login = () => {
-  const [formData, setFormData] = useState({ emailOrUsername: '', password: '' })
+  const [formData, setFormData] = useState({ email: '', password: '' })
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, user } = useAuth()
 
-  // Cek apakah token masih valid
+  // Kalau sudah login, langsung ke /products
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    const expiresAt = localStorage.getItem('expiresAt') // timestamp expiry
-    console.log('expired_at : ', expiresAt)
-    if (token && expiresAt) {
-      const now = Date.now()
-      if (now < Number(expiresAt)) {
-        navigate('/dashboard')
-        console.log('Auto Login')
-        return
-      } else {
-        console.log('Expired Login')
-        localStorage.removeItem('user')
-        localStorage.removeItem('token')
-        localStorage.removeItem('expiresIn')
-        localStorage.removeItem('expiresAt')
-      }
+    if (user) {
+      navigate('/products', { replace: true })
     }
-  }, [navigate])
+  }, [user, navigate])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -51,32 +41,32 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError(null)
+    setLoading(true)
+
     try {
-      const res = await backendAuth.post('/login', {
-        emailOrUsername: formData.emailOrUsername,
+      const res = await apiAuth.post('/login', {
+        email: formData.email,
         password: formData.password,
       })
 
-      if (res.data.success) {
-        const { user, token, expiresIn } = res.data.data
+      const data = res.data
 
-        // Simpan waktu kedaluwarsa dalam milidetik
-        let expiresAt = Date.now()
-        if (expiresIn === '24h') {
-          expiresAt += 24 * 60 * 60 * 1000
-        }
+      // Support berbagai bentuk response:
+      // { token, user } atau { data: { token, user } } atau { accessToken, ... }
+      const token = data.token ?? data.accessToken ?? data.data?.token ?? data.data?.accessToken
+      const userData = data.user ?? data.data?.user ?? { email: formData.email }
 
-        login({ user, token })
-        localStorage.setItem('expiresIn', expiresIn)
-        localStorage.setItem('expiresAt', expiresAt.toString())
-
-        navigate('/dashboard')
-      } else {
-        alert(res.data.message || 'Login gagal')
+      if (!token) {
+        throw new Error('Token tidak ditemukan di response login')
       }
+
+      login({ user: userData, token })
+      navigate('/products', { replace: true })
     } catch (err) {
-      console.error(err)
-      alert('Login gagal, periksa kembali email/username dan password')
+      setError(err.response?.data?.message ?? err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -84,22 +74,30 @@ const Login = () => {
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={6}>
+          <CCol md={5}>
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={handleSubmit}>
                     <h1>Login</h1>
-                    <p className="text-body-secondary">Sign In to your account</p>
+                    <p className="text-body-secondary">Sign in to your account</p>
+
+                    {error && (
+                      <CAlert color="danger" className="py-2">
+                        {error}
+                      </CAlert>
+                    )}
 
                     <CInputGroup className="mb-3">
-                      <CInputGroupText>@</CInputGroupText>
+                      <CInputGroupText>
+                        <CIcon icon={cilUser} />
+                      </CInputGroupText>
                       <CFormInput
-                        type="text"
-                        name="emailOrUsername"
-                        placeholder="Email Or Username"
-                        autoComplete="username"
-                        value={formData.emailOrUsername}
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        autoComplete="email"
+                        value={formData.email}
                         onChange={handleChange}
                         required
                       />
@@ -120,13 +118,15 @@ const Login = () => {
                       />
                     </CInputGroup>
 
-                    <CRow>
-                      <CCol xs={6}>
-                        <CButton type="submit" color="primary" className="px-4">
-                          Login
-                        </CButton>
-                      </CCol>
-                    </CRow>
+                    <CButton
+                      type="submit"
+                      color="primary"
+                      className="px-4 w-100"
+                      disabled={loading}
+                    >
+                      {loading ? <CSpinner size="sm" className="me-2" /> : null}
+                      {loading ? 'Logging in...' : 'Login'}
+                    </CButton>
                   </CForm>
                 </CCardBody>
               </CCard>

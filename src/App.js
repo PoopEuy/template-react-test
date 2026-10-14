@@ -4,8 +4,12 @@ import { useSelector } from 'react-redux'
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 
+import { AuthProvider } from './context/AuthContext'
 import routes from './routes'
 import ToastContainerWrapper from './components/ToastContainerWrapper'
+
+// Pages
+const Login = React.lazy(() => import('./views/pages/login/Login'))
 
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
@@ -24,22 +28,25 @@ const App = () => {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <BrowserRouter>
-      <ToastContainerWrapper />
-      <Suspense
-        fallback={
-          <div className="pt-3 text-center">
-            <CSpinner color="primary" variant="grow" />
-          </div>
-        }
-      >
-        <Routes>
-          {routes.map((r, idx) => (
-            <Route key={idx} path={r.path} element={r.element} />
-          ))}
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <ToastContainerWrapper />
+        <Suspense
+          fallback={
+            <div className="pt-3 text-center">
+              <CSpinner color="primary" variant="grow" />
+            </div>
+          }
+        >
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            {routes.map((r, idx) => (
+              <Route key={idx} path={r.path} element={r.element} />
+            ))}
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

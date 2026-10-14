@@ -1,5 +1,6 @@
 import React, { lazy } from 'react'
 import { Navigate } from 'react-router-dom'
+import PrivateRoutes from './PrivateRoutes'
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'))
 const ProductsPage = lazy(() => import('./views/products/ProductsPage'))
@@ -10,13 +11,15 @@ const routes = [
     path: '/',
     element: <Navigate to="/products" replace />,
   },
-  // Products
+  // Products — harus login
   {
     path: '/products',
     element: (
-      <DefaultLayout>
-        <ProductsPage />
-      </DefaultLayout>
+      <PrivateRoutes>
+        <DefaultLayout>
+          <ProductsPage />
+        </DefaultLayout>
+      </PrivateRoutes>
     ),
   },
   // Fallback

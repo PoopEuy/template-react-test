@@ -15,8 +15,7 @@ import {
   CTableBody,
   CTableDataCell,
 } from '@coreui/react'
-
-const PRODUCTS_URL = 'http://localhost:2000/products'
+import { apiProducts } from '../../api/axios'
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([])
@@ -28,15 +27,12 @@ const ProductsPage = () => {
       try {
         setLoading(true)
         setError(null)
-        const response = await fetch(PRODUCTS_URL)
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        const data = await response.json()
-        // support both array response and { data: [...] } wrapper
+        const res = await apiProducts.get('/')
+        const data = res.data
+        // support array response maupun { data: [...] } wrapper
         setProducts(Array.isArray(data) ? data : data.data ?? [])
       } catch (err) {
-        setError(err.message)
+        setError(err.response?.data?.message ?? err.message)
       } finally {
         setLoading(false)
       }
